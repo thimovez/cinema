@@ -1,14 +1,12 @@
-const fs = require("fs");
-const csv = require("csv-parser");
-const { resolve } = require("path");
-const { rejects } = require("assert");
+const fs = require('fs');
+const csv = require('csv-parser');
 
 function quickSort(arr) {
   if (arr.length < 2) return arr;
-  let pivot = arr[0].year;
+  const pivot = arr[0].year;
   const left = [];
   const right = [];
-    
+
   for (let i = 1; i < arr.length; i++) {
     if (pivot > arr[i].year) {
       left.push(arr[i]);
@@ -20,8 +18,7 @@ function quickSort(arr) {
   return quickSort(left).concat(arr[0], quickSort(right));
 }
 
-const objectToCsv = function (data) {
-
+const objectToCsv = function(data) {
   const csvRows = [];
 
   /* Get headers as every csv data format
@@ -38,13 +35,13 @@ const objectToCsv = function (data) {
 
   // Loop to get value of each objects key
   for (const row of data) {
-      const values = headers.map(header => {
-          const val = row[header]
-          return `"${val}"`;
-      });
+    const values = headers.map((header) => {
+      const val = row[header];
+      return `"${val}"`;
+    });
 
-      // To add, separator between each value
-      csvRows.push(values.join(','));
+    // To add, separator between each value
+    csvRows.push(values.join(','));
   }
 
   /* To add new line for each objects values
@@ -54,28 +51,26 @@ const objectToCsv = function (data) {
 };
 
 const sortByYear = async () => new Promise((resolve, reject) => {
-    let movies = [];
-    fs.createReadStream('./movies.csv')
+  const movies = [];
+  fs.createReadStream('./movies.csv')
       .pipe(csv())
-      .on("data", (data) => {
+      .on('data', (data) => {
         const film = {
           film: data.film,
           genre: data.genre,
-          year: data.year
+          year: data.year,
         };
 
         movies.push(film);
-    })  
-    .on("end", () => {
-        console.log("done!");
-        let sortedMovies = quickSort(movies);
-        let csv = objectToCsv(sortedMovies);
+      }).on('end', () => {
+        console.log('done!');
+        const sortedMovies = quickSort(movies);
+        const csv = objectToCsv(sortedMovies);
         fs.writeFileSync('./some.csv', csv);
         resolve(csv);
-    })
-    .on('error', function (error) {
-        reject(error)
-    });
+      }).on('error', function(error) {
+        reject(error);
+      });
 });
 
 module.exports = sortByYear;
